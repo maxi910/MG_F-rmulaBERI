@@ -225,7 +225,7 @@
       const kg_desc = (!isNaN(kg_bruto) && !isNaN(kg_net) && kg_bruto >= kg_net) ? (kg_bruto - kg_net) : 0;
 
       const costo_fruta = isNaN(kg_bruto) ? NaN : kg_bruto * fruta;
-      const costo_packing = kg_bruto * packing;
+      const costo_packing = kg_net * packing;
       const costo_insumos_caja = Q * caja;
       const costo_pallets = pallets * (pallet_unit + huincha + esquineros + tapa);
       const fletes_int = flete_cp + flete_pp;
