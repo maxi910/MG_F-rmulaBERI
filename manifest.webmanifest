@@ -1,0 +1,20 @@
+{
+  "name": "Costo Contenedor",
+  "short_name": "Contenedor",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0b7a75",
+  "icons": [
+    {
+      "src": "Apple192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "Apple512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
