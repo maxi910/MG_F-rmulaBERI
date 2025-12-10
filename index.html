@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Costo Contenedor — Calculadora</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="Apple" sizes="180x180" href="./Apple.png?v=3.8">
+  <link rel="Apple" sizes="180x180" href="./Apple.png?v=3.9">
   <meta name="theme-color" content="#0b7a75">
   <style>
     :root { --brand:#0b7a75; --ok:#e8f5e9; --bad:#fdecea; --muted:#6b7280; }
@@ -53,8 +53,8 @@
         <label>Tipo de cambio USD→EUR <span class="unit">EUR/US$</span></label>
         <input type="number" id="tc_usd_eur" step="any" min="0" inputmode="decimal" placeholder="Ej: 0,92">
 
-        <label>Tipo de cambio CLP→EUR <span class="unit">EUR/CLP</span></label>
-        <input type="number" id="tc_clp_eur" step="any" min="0" inputmode="decimal" placeholder="Ej: 0,00098">
+        <label>Tipo de cambio EUR→CLP <span class="unit">CLP/EUR</span></label>
+        <input type="number" id="tc_eur_clp" step="any" min="0" inputmode="decimal" placeholder="Ej: 950">
 
         <label>Pallets por contenedor <span class="unit">pallets</span></label>
         <input type="number" id="pallets" step="1" min="0" inputmode="numeric" placeholder="Ej: 20">
@@ -98,12 +98,6 @@
         <label>Flete Marítimo <span class="unit">US$/cont</span></label>
         <input type="number" id="flete_mar_usd" step="any" min="0" inputmode="decimal" placeholder="Ej: 5000">
 
-        <label>Precio venta por caja (opcional) <span class="unit">US$/caja</span></label>
-        <input type="text" id="precio_usd_caja" inputmode="decimal" pattern="[0-9]+([\\.,][0-9]+)?" placeholder="Ej: 31 o 27,7">
-
-        <label>Precio descarte (mercado nacional) <span class="unit">CLP/kg</span></label>
-        <input type="number" id="precio_desc" step="any" min="0" inputmode="decimal" placeholder="Ej: 120">
-
         <label>Cobertura para precio mínimo garantizado <span class="unit">%</span></label>
         <input type="text" id="cobertura_pct" inputmode="decimal" pattern="[0-9]+([\\.,][0-9]+)?" placeholder="Ej: 10 o 15,5">
       </div>
@@ -131,27 +125,21 @@
       <div class="result-row"><span class="res-label">Precio mínimo garantizado (contenedor, CLP)</span><span class="res-value" id="r_precio_min_garantizado">—</span></div>
       <div class="result-row"><span class="res-label">Costo por caja (CLP)</span><span class="res-value" id="r_cxcaja">—</span></div>
       <div class="result-row"><span class="res-label">Costo por kg (CLP)</span><span class="res-value" id="r_cxkg">—</span></div>
-      <div class="result-row"><span class="res-label">Precio CLP/caja (si diste US$)</span><span class="res-value" id="r_precio_clp">—</span></div>
-      <div class="result-row"><span class="res-label">Margen por caja (CLP)</span><span class="res-value" id="r_margen_caja">—</span></div>
-      <div class="result-row"><span class="res-label">Margen TOTAL (CLP)</span><span class="res-value" id="r_margen_total">—</span></div>
 
       <div class="result-row"><span class="res-label">Costo TOTAL contenedor (EUR)</span><span class="res-value" id="r_total_eur">—</span></div>
       <div class="result-row"><span class="res-label">Precio mínimo garantizado (contenedor, EUR)</span><span class="res-value" id="r_precio_min_garantizado_eur">—</span></div>
       <div class="result-row"><span class="res-label">Costo por caja (EUR)</span><span class="res-value" id="r_cxcaja_eur">—</span></div>
       <div class="result-row"><span class="res-label">Costo por kg (EUR)</span><span class="res-value" id="r_cxkg_eur">—</span></div>
-      <div class="result-row"><span class="res-label">Precio EUR/caja (si diste US$)</span><span class="res-value" id="r_precio_eur">—</span></div>
-      <div class="result-row"><span class="res-label">Margen por caja (EUR)</span><span class="res-value" id="r_margen_caja_eur">—</span></div>
-      <div class="result-row"><span class="res-label">Margen TOTAL (EUR)</span><span class="res-value" id="r_margen_total_eur">—</span></div>
     </div>
 
   </main>
-  <div class="footer">Funciona offline. Tus datos no salen del dispositivo. — <strong>v3.6</strong></div>
+  <div class="footer">Funciona offline. Tus datos no salen del dispositivo. — <strong>v3.8</strong></div>
 
   <script>
     const $ = (id) => document.getElementById(id);
     const inputs = [
-      'tc_usd_eur','tc_clp_eur','pallets','cajas_por_pallet','kg_por_caja','merma_pct','fruta_kg','packing_kg','caja_x',
-      'pallet_unit','huincha_pal','esquin_pal','tapa_pal','flete_cp','flete_pp','flete_mar_usd','precio_usd_caja','precio_desc','cobertura_pct'
+      'tc_usd_eur','tc_eur_clp','pallets','cajas_por_pallet','kg_por_caja','merma_pct','fruta_kg','packing_kg','caja_x',
+      'pallet_unit','huincha_pal','esquin_pal','tapa_pal','flete_cp','flete_pp','flete_mar_usd','cobertura_pct'
     ];
     const fmtCLP = (n) => isNaN(n) ? '—' : n.toLocaleString('es-CL', {style:'currency', currency:'CLP', maximumFractionDigits:0});
     const fmtEUR = (n) => isNaN(n) ? '—' : n.toLocaleString('es-ES', {style:'currency', currency:'EUR', maximumFractionDigits:2});
@@ -181,8 +169,8 @@
 
     function compute() {
       const tc_usd_eur = read('tc_usd_eur');   // EUR / USD
-      const tc_clp_eur = read('tc_clp_eur');   // EUR / CLP
-      const tc_usd_clp = (tc_usd_eur > 0 && tc_clp_eur > 0) ? (tc_usd_eur / tc_clp_eur) : NaN; // CLP / USD
+      const tc_eur_clp = read('tc_eur_clp');   // CLP / EUR
+      const tc_usd_clp = (tc_usd_eur > 0 && tc_eur_clp > 0) ? (tc_usd_eur * tc_eur_clp) : NaN; // CLP / USD
 
       const pallets = read('pallets');
       const cajas_pallet = read('cajas_por_pallet');
@@ -198,8 +186,6 @@
       const flete_cp = read('flete_cp');
       const flete_pp = read('flete_pp');
       const flete_mar_usd = read('flete_mar_usd');
-      const precio_usd_caja = read('precio_usd_caja');
-      const precio_desc = read('precio_desc');
       const cobertura = read('cobertura_pct')/100;
 
       const warn = (msg) => {
@@ -215,8 +201,6 @@
       const kg_net = Q * kg_caja;
       const kg_bruto = (1 - merma) > 0 ? kg_net / (1 - merma) : NaN;
       const kg_desc = (!isNaN(kg_bruto) && !isNaN(kg_net) && kg_bruto >= kg_net) ? (kg_bruto - kg_net) : 0;
-
-      const ingreso_desc = kg_desc * precio_desc;
 
       const costo_fruta = isNaN(kg_bruto) ? NaN : kg_bruto * fruta;
       const costo_packing = kg_net * packing;
@@ -234,29 +218,12 @@
       const costo_xcaja = (Q>0 && !isNaN(total)) ? total / Q : NaN;
       const costo_xkg = (kg_net>0 && !isNaN(total)) ? total / kg_net : NaN;
 
-      const precio_clp_caja = (!isNaN(precio_usd_caja) && precio_usd_caja>0 && tc_usd_clp>0) ? precio_usd_caja * tc_usd_clp : NaN;
-      const ingreso_total = (!isNaN(precio_clp_caja) && Q>0) ? precio_clp_caja * Q : 0;
-      const margen_caja = (!isNaN(precio_clp_caja) && !isNaN(costo_xcaja)) ? (precio_clp_caja - costo_xcaja) : NaN;
-      const margen_total = (!isNaN(total)) ? ( ingreso_total + ingreso_desc - total ) : NaN;
-
-      // Conversión a EUR (usando CLP→EUR y USD→EUR)
-      const total_eur = (!isNaN(total) && tc_clp_eur>0) ? total * tc_clp_eur : NaN;
-      const precio_min_garantizado_eur = (!isNaN(precio_min_garantizado) && tc_clp_eur>0)
-        ? precio_min_garantizado * tc_clp_eur : NaN;
-      const costo_xcaja_eur = (!isNaN(costo_xcaja) && tc_clp_eur>0) ? costo_xcaja * tc_clp_eur : NaN;
-      const costo_xkg_eur = (!isNaN(costo_xkg) && tc_clp_eur>0) ? costo_xkg * tc_clp_eur : NaN;
-      const ingreso_desc_eur = (!isNaN(ingreso_desc) && tc_clp_eur>0) ? ingreso_desc * tc_clp_eur : NaN;
-
-      const precio_eur_caja = (!isNaN(precio_usd_caja) && precio_usd_caja>0 && tc_usd_eur>0)
-        ? precio_usd_caja * tc_usd_eur
-        : NaN;
-      const ingreso_total_eur = (!isNaN(precio_eur_caja) && Q>0) ? precio_eur_caja * Q : 0;
-      const margen_caja_eur = (!isNaN(precio_eur_caja) && !isNaN(costo_xcaja_eur))
-        ? (precio_eur_caja - costo_xcaja_eur)
-        : NaN;
-      const margen_total_eur = (!isNaN(total_eur))
-        ? ( ingreso_total_eur + (isNaN(ingreso_desc_eur) ? 0 : ingreso_desc_eur) - total_eur )
-        : NaN;
+      // Conversión a EUR usando EUR→CLP (CLP / EUR): EUR = CLP / tc_eur_clp
+      const total_eur = (!isNaN(total) && tc_eur_clp>0) ? total / tc_eur_clp : NaN;
+      const precio_min_garantizado_eur = (!isNaN(precio_min_garantizado) && tc_eur_clp>0)
+        ? precio_min_garantizado / tc_eur_clp : NaN;
+      const costo_xcaja_eur = (!isNaN(costo_xcaja) && tc_eur_clp>0) ? costo_xcaja / tc_eur_clp : NaN;
+      const costo_xkg_eur = (!isNaN(costo_xkg) && tc_eur_clp>0) ? costo_xkg / tc_eur_clp : NaN;
 
       // Salidas CLP
       document.getElementById('r_q').textContent = isNaN(Q) ? '—' : fmtNum(Q,0);
@@ -273,9 +240,6 @@
       document.getElementById('r_precio_min_garantizado').textContent = isNaN(precio_min_garantizado) ? '—' : fmtCLP(precio_min_garantizado);
       document.getElementById('r_cxcaja').textContent = isNaN(costo_xcaja) ? '—' : fmtCLP(costo_xcaja);
       document.getElementById('r_cxkg').textContent = isNaN(costo_xkg) ? '—' : fmtNum(costo_xkg,0);
-      document.getElementById('r_precio_clp').textContent = isNaN(precio_clp_caja) ? '—' : fmtCLP(precio_clp_caja);
-      document.getElementById('r_margen_caja').textContent = isNaN(margen_caja) ? '—' : fmtCLP(margen_caja);
-      document.getElementById('r_margen_total').textContent = isNaN(margen_total) ? '—' : fmtCLP(margen_total);
 
       // Salidas EUR
       document.getElementById('r_total_eur').textContent = isNaN(total_eur) ? '—' : fmtEUR(total_eur);
@@ -283,23 +247,17 @@
         isNaN(precio_min_garantizado_eur) ? '—' : fmtEUR(precio_min_garantizado_eur);
       document.getElementById('r_cxcaja_eur').textContent = isNaN(costo_xcaja_eur) ? '—' : fmtEUR(costo_xcaja_eur);
       document.getElementById('r_cxkg_eur').textContent = isNaN(costo_xkg_eur) ? '—' : fmtNum(costo_xkg_eur,4);
-      document.getElementById('r_precio_eur').textContent = isNaN(precio_eur_caja) ? '—' : fmtEUR(precio_eur_caja);
-      document.getElementById('r_margen_caja_eur').textContent = isNaN(margen_caja_eur) ? '—' : fmtEUR(margen_caja_eur);
-      document.getElementById('r_margen_total_eur').textContent = isNaN(margen_total_eur) ? '—' : fmtEUR(margen_total_eur);
 
-      const card = document.getElementById('resultCard');
-      card.classList.remove('ok','bad');
-      if (!isNaN(margen_total)) { card.classList.add(margen_total >= 0 ? 'ok' : 'bad'); }
-
+      // Sin semáforo ok/bad porque ya no hay margen
       const data = {}; inputs.forEach(n => data[n] = document.getElementById(n).value);
-      localStorage.setItem('calcCont_v3_6', JSON.stringify(data));
+      localStorage.setItem('calcCont_v3_8', JSON.stringify(data));
 
       warn(warnMsg);
     }
 
     (function init(){
       if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
-      const data = localStorage.getItem('calcCont_v3_6');
+      const data = localStorage.getItem('calcCont_v3_8');
       if (data) {
         try {
           const o = JSON.parse(data);
@@ -310,7 +268,7 @@
       }
       inputs.forEach(id => document.getElementById(id).addEventListener('input', compute));
       document.getElementById('btnReset').addEventListener('click', () => {
-        inputs.forEach(id => document.getElementById(id).value='');
+        inputs.forEach(id => { document.getElementById(id).value=''; });
         compute();
       });
       document.getElementById('btnShare').addEventListener('click', async () => {
