@@ -256,7 +256,9 @@
     }
 
     (function init(){
-      if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
+      if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('./sw.js?v=39');
+      }
       const data = localStorage.getItem('calcCont_v3_8');
       if (data) {
         try {
