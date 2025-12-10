@@ -23,8 +23,6 @@
     .result-row:last-child { border-bottom:none; }
     .res-label { font-weight:800; }
     .res-value { font-weight:900; font-size:20px; }
-    .ok { background:var(--ok); }
-    .bad { background:var(--bad); }
     .btns { display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; }
     button { padding:10px 14px; border-radius:10px; border:0; font-weight:800; background:var(--brand); color:white; font-size:14px; }
     button.secondary { background:#eceff1; color:#111; }
@@ -55,6 +53,9 @@
 
         <label>Tipo de cambio EUR→CLP <span class="unit">CLP/EUR</span></label>
         <input type="number" id="tc_eur_clp" step="any" min="0" inputmode="decimal" placeholder="Ej: 950">
+
+        <label>Tipo de cambio Peso Chileno→USD <span class="unit">CLP/US$</span></label>
+        <input type="number" id="tc_clp_usd" step="any" min="0" inputmode="decimal" placeholder="Ej: 950">
 
         <label>Pallets por contenedor <span class="unit">pallets</span></label>
         <input type="number" id="pallets" step="1" min="0" inputmode="numeric" placeholder="Ej: 20">
@@ -114,31 +115,41 @@
       <div class="result-row"><span class="res-label">Cajas por contenedor (Q)</span><span class="res-value" id="r_q">—</span></div>
       <div class="result-row"><span class="res-label">Kg netos empacados</span><span class="res-value" id="r_kg_net">—</span></div>
       <div class="result-row"><span class="res-label">Kg brutos requeridos de fruta</span><span class="res-value" id="r_kg_bruto">—</span></div>
-      <div class="result-row"><span class="res-label">Kg descarte (venta local)</span><span class="res-value" id="r_kg_desc">—</span></div>
+      <div class="result-row"><span class="res-label">Kg descarte</span><span class="res-value" id="r_kg_desc">—</span></div>
+
       <div class="result-row"><span class="res-label">Costo fruta (CLP)</span><span class="res-value" id="r_costo_fruta">—</span></div>
       <div class="result-row"><span class="res-label">Packing (CLP)</span><span class="res-value" id="r_costo_packing">—</span></div>
       <div class="result-row"><span class="res-label">Insumos caja (CLP)</span><span class="res-value" id="r_insumos_caja">—</span></div>
       <div class="result-row"><span class="res-label">Pallets (incl. tapa) (CLP)</span><span class="res-value" id="r_costo_pallets">—</span></div>
       <div class="result-row"><span class="res-label">Fletes internos (CLP)</span><span class="res-value" id="r_fletes_int">—</span></div>
       <div class="result-row"><span class="res-label">Flete marítimo (CLP)</span><span class="res-value" id="r_flete_mar">—</span></div>
+
       <div class="result-row"><span class="res-label">Costo TOTAL contenedor (CLP)</span><span class="res-value" id="r_total">—</span></div>
-      <div class="result-row"><span class="res-label">Precio mínimo garantizado (contenedor, CLP)</span><span class="res-value" id="r_precio_min_garantizado">—</span></div>
+      <div class="result-row"><span class="res-label">Costo TOTAL contenedor cobertura (CLP)</span><span class="res-value" id="r_precio_min_garantizado">—</span></div>
+
       <div class="result-row"><span class="res-label">Costo por caja (CLP)</span><span class="res-value" id="r_cxcaja">—</span></div>
+      <div class="result-row"><span class="res-label">Costo por caja cobertura (CLP)</span><span class="res-value" id="r_cxcaja_cov">—</span></div>
+
       <div class="result-row"><span class="res-label">Costo por kg (CLP)</span><span class="res-value" id="r_cxkg">—</span></div>
+      <div class="result-row"><span class="res-label">Costo por kg cobertura (CLP)</span><span class="res-value" id="r_cxkg_cov">—</span></div>
 
       <div class="result-row"><span class="res-label">Costo TOTAL contenedor (EUR)</span><span class="res-value" id="r_total_eur">—</span></div>
-      <div class="result-row"><span class="res-label">Precio mínimo garantizado (contenedor, EUR)</span><span class="res-value" id="r_precio_min_garantizado_eur">—</span></div>
+      <div class="result-row"><span class="res-label">Costo TOTAL contenedor cobertura (EUR)</span><span class="res-value" id="r_precio_min_garantizado_eur">—</span></div>
+
       <div class="result-row"><span class="res-label">Costo por caja (EUR)</span><span class="res-value" id="r_cxcaja_eur">—</span></div>
+      <div class="result-row"><span class="res-label">Costo por caja cobertura (EUR)</span><span class="res-value" id="r_cxcaja_cov_eur">—</span></div>
+
       <div class="result-row"><span class="res-label">Costo por kg (EUR)</span><span class="res-value" id="r_cxkg_eur">—</span></div>
+      <div class="result-row"><span class="res-label">Costo por kg cobertura (EUR)</span><span class="res-value" id="r_cxkg_cov_eur">—</span></div>
     </div>
 
   </main>
-  <div class="footer">Funciona offline. Tus datos no salen del dispositivo. — <strong>v3.8</strong></div>
+  <div class="footer">Funciona offline. Tus datos no salen del dispositivo. — <strong>v3.10</strong></div>
 
   <script>
     const $ = (id) => document.getElementById(id);
     const inputs = [
-      'tc_usd_eur','tc_eur_clp','pallets','cajas_por_pallet','kg_por_caja','merma_pct','fruta_kg','packing_kg','caja_x',
+      'tc_usd_eur','tc_eur_clp','tc_clp_usd','pallets','cajas_por_pallet','kg_por_caja','merma_pct','fruta_kg','packing_kg','caja_x',
       'pallet_unit','huincha_pal','esquin_pal','tapa_pal','flete_cp','flete_pp','flete_mar_usd','cobertura_pct'
     ];
     const fmtCLP = (n) => isNaN(n) ? '—' : n.toLocaleString('es-CL', {style:'currency', currency:'CLP', maximumFractionDigits:0});
@@ -168,9 +179,20 @@
     }
 
     function compute() {
-      const tc_usd_eur = read('tc_usd_eur');   // EUR / USD
+      const tc_usd_eur = read('tc_usd_eur');   // EUR / USD (por si luego lo necesitas)
       const tc_eur_clp = read('tc_eur_clp');   // CLP / EUR
-      const tc_usd_clp = (tc_usd_eur > 0 && tc_eur_clp > 0) ? (tc_usd_eur * tc_eur_clp) : NaN; // CLP / USD
+      const tc_clp_usd = read('tc_clp_usd');   // CLP / US$
+
+      // Tipo de cambio CLP por USD para flete marítimo:
+      // prioridad: valor directo CLP/US$; si no hay, se deriva de USD→EUR y EUR→CLP
+      let tc_usd_clp;
+      if (tc_clp_usd > 0) {
+        tc_usd_clp = tc_clp_usd;                  // CLP / US$
+      } else if (tc_usd_eur > 0 && tc_eur_clp > 0) {
+        tc_usd_clp = tc_usd_eur * tc_eur_clp;     // (EUR/US$)*(CLP/EUR) = CLP/US$
+      } else {
+        tc_usd_clp = NaN;
+      }
 
       const pallets = read('pallets');
       const cajas_pallet = read('cajas_por_pallet');
@@ -203,7 +225,7 @@
       const kg_desc = (!isNaN(kg_bruto) && !isNaN(kg_net) && kg_bruto >= kg_net) ? (kg_bruto - kg_net) : 0;
 
       const costo_fruta = isNaN(kg_bruto) ? NaN : kg_bruto * fruta;
-      const costo_packing = kg_bruto * packing;
+      const costo_packing = kg_net * packing;
       const costo_insumos_caja = Q * caja;
       const costo_pallets = pallets * (pallet_unit + huincha + esquineros + tapa);
       const fletes_int = flete_cp + flete_pp;
@@ -218,6 +240,10 @@
       const costo_xcaja = (Q>0 && !isNaN(total)) ? total / Q : NaN;
       const costo_xkg = (kg_net>0 && !isNaN(total)) ? total / kg_net : NaN;
 
+      // Costo por caja/kg con cobertura (CLP)
+      const costo_xcaja_cov = (Q>0 && !isNaN(precio_min_garantizado)) ? precio_min_garantizado / Q : NaN;
+      const costo_xkg_cov = (kg_net>0 && !isNaN(precio_min_garantizado)) ? precio_min_garantizado / kg_net : NaN;
+
       // Conversión a EUR usando EUR→CLP (CLP / EUR): EUR = CLP / tc_eur_clp
       const total_eur = (!isNaN(total) && tc_eur_clp>0) ? total / tc_eur_clp : NaN;
       const precio_min_garantizado_eur = (!isNaN(precio_min_garantizado) && tc_eur_clp>0)
@@ -225,41 +251,56 @@
       const costo_xcaja_eur = (!isNaN(costo_xcaja) && tc_eur_clp>0) ? costo_xcaja / tc_eur_clp : NaN;
       const costo_xkg_eur = (!isNaN(costo_xkg) && tc_eur_clp>0) ? costo_xkg / tc_eur_clp : NaN;
 
+      const costo_xcaja_cov_eur = (!isNaN(costo_xcaja_cov) && tc_eur_clp>0) ? costo_xcaja_cov / tc_eur_clp : NaN;
+      const costo_xkg_cov_eur = (!isNaN(costo_xkg_cov) && tc_eur_clp>0) ? costo_xkg_cov / tc_eur_clp : NaN;
+
       // Salidas CLP
       document.getElementById('r_q').textContent = isNaN(Q) ? '—' : fmtNum(Q,0);
       document.getElementById('r_kg_net').textContent = isNaN(kg_net) ? '—' : fmtNum(kg_net,0);
       document.getElementById('r_kg_bruto').textContent = isNaN(kg_bruto) ? '—' : fmtNum(kg_bruto,0);
       document.getElementById('r_kg_desc').textContent = isNaN(kg_desc) ? '—' : fmtNum(kg_desc,0);
+
       document.getElementById('r_costo_fruta').textContent = isNaN(costo_fruta) ? '—' : fmtCLP(costo_fruta);
       document.getElementById('r_costo_packing').textContent = isNaN(costo_packing) ? '—' : fmtCLP(costo_packing);
       document.getElementById('r_insumos_caja').textContent = isNaN(costo_insumos_caja) ? '—' : fmtCLP(costo_insumos_caja);
       document.getElementById('r_costo_pallets').textContent = isNaN(costo_pallets) ? '—' : fmtCLP(costo_pallets);
       document.getElementById('r_fletes_int').textContent = isNaN(fletes_int) ? '—' : fmtCLP(fletes_int);
       document.getElementById('r_flete_mar').textContent = isNaN(flete_mar_clp) ? '—' : fmtCLP(flete_mar_clp);
+
       document.getElementById('r_total').textContent = isNaN(total) ? '—' : fmtCLP(total);
-      document.getElementById('r_precio_min_garantizado').textContent = isNaN(precio_min_garantizado) ? '—' : fmtCLP(precio_min_garantizado);
+      document.getElementById('r_precio_min_garantizado').textContent =
+        isNaN(precio_min_garantizado) ? '—' : fmtCLP(precio_min_garantizado);
+
       document.getElementById('r_cxcaja').textContent = isNaN(costo_xcaja) ? '—' : fmtCLP(costo_xcaja);
+      document.getElementById('r_cxcaja_cov').textContent = isNaN(costo_xcaja_cov) ? '—' : fmtCLP(costo_xcaja_cov);
+
       document.getElementById('r_cxkg').textContent = isNaN(costo_xkg) ? '—' : fmtNum(costo_xkg,0);
+      document.getElementById('r_cxkg_cov').textContent = isNaN(costo_xkg_cov) ? '—' : fmtNum(costo_xkg_cov,0);
 
       // Salidas EUR
       document.getElementById('r_total_eur').textContent = isNaN(total_eur) ? '—' : fmtEUR(total_eur);
       document.getElementById('r_precio_min_garantizado_eur').textContent =
         isNaN(precio_min_garantizado_eur) ? '—' : fmtEUR(precio_min_garantizado_eur);
-      document.getElementById('r_cxcaja_eur').textContent = isNaN(costo_xcaja_eur) ? '—' : fmtEUR(costo_xcaja_eur);
-      document.getElementById('r_cxkg_eur').textContent = isNaN(costo_xkg_eur) ? '—' : fmtNum(costo_xkg_eur,4);
 
-      // Sin semáforo ok/bad porque ya no hay margen
+      document.getElementById('r_cxcaja_eur').textContent = isNaN(costo_xcaja_eur) ? '—' : fmtEUR(costo_xcaja_eur);
+      document.getElementById('r_cxcaja_cov_eur').textContent =
+        isNaN(costo_xcaja_cov_eur) ? '—' : fmtEUR(costo_xcaja_cov_eur);
+
+      document.getElementById('r_cxkg_eur').textContent = isNaN(costo_xkg_eur) ? '—' : fmtNum(costo_xkg_eur,4);
+      document.getElementById('r_cxkg_cov_eur').textContent =
+        isNaN(costo_xkg_cov_eur) ? '—' : fmtNum(costo_xkg_cov_eur,4);
+
       const data = {}; inputs.forEach(n => data[n] = document.getElementById(n).value);
-      localStorage.setItem('calcCont_v3_8', JSON.stringify(data));
+      localStorage.setItem('calcCont_v3_10', JSON.stringify(data));
 
       warn(warnMsg);
     }
 
     (function init(){
       if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('./sw.js?v=39');
+        navigator.serviceWorker.register('./sw.js?v=39');
       }
-      const data = localStorage.getItem('calcCont_v3_8');
+      const data = localStorage.getItem('calcCont_v3_10');
       if (data) {
         try {
           const o = JSON.parse(data);
